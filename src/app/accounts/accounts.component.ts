@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import {FormBuilder, FormGroup} from "@angular/forms";
+import {AccountsService} from "../services/accounts.service";
+import {AccountDetails} from "../model/account.model";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-accounts',
@@ -7,9 +11,30 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AccountsComponent implements OnInit {
 
-  constructor() { }
+  accountFormGroup!: FormGroup;
+  currentPage: number = 0;
+  pageSize: number = 5;
+  accountObservable!: Observable<AccountDetails>
 
-  ngOnInit(): void {
+
+  constructor(private fb: FormBuilder, private accountService: AccountsService) {
   }
 
+  ngOnInit(): void {
+    this.accountFormGroup = this.fb.group({
+      accountId: this.fb.control('')
+    });
+  }
+
+  handleSearchAccount() {
+    let accountId: string = this.accountFormGroup.value.accountId;
+    this.accountObservable = this.accountService.getAccount(accountId, this.currentPage, this.pageSize);
+
+  }
+
+  gotoPage(page: number) {
+    this.currentPage=page;
+    this.handleSearchAccount();
+  }
 }
+
